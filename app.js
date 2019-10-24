@@ -1,15 +1,15 @@
 const express = require('express');
-const mongoose = require('mongoose');
+
 const debug = require('debug')('app');
 const bodyParser = require('body-parser');
 
 var app = express();
-const db = mongoose.connect('mongodb://localhost/messageboard');
+const db = require('./db/db');
 const port = process.env.PORT || 3001;
 
 
 const Commenmt = require('./models/commentModel');
-const commentRouter = require('./routes/commentRoutes')(Commenmt);
+const commentRouter = require('./routes/commentRoutes')(db);
 console.log('comment router:',commentRouter);
 const Message = require('./models/messageModel');
 const messageRouter = require('./routes/messageRouter')(Message);

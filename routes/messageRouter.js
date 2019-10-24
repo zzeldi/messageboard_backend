@@ -1,28 +1,14 @@
 const express = require('express');
+const db = require('../db/db');
 
-function routes(Message) {
+function routes() {
     const messageRouter = express.Router();
     messageRouter.route('/messages')
-        .get((req, res) => {
+        .get(db.getMessages)
+        .post(db.createMessage
+        );
 
-            Message.find().populate('comments').then((err, messages) => {
-                    if (err) {
-                        return res.send(err);
-                    }
-
-                    return res.json(messages);
-                }
-            )
-        })
-        .post((req, res) => {
-            const message = new Message(req.body);
-            message.date = Date.now();
-            message.save();
-            return res.status(201).json(message);
-
-        });
-
-    messageRouter.route('/messages/:messageId')
+    /*messageRouter.route('/messages/:messageId')
         .get((req, res) => {
             Message.findById(req.params.messageId, (err, message) => {
                     if (err) {
@@ -45,7 +31,7 @@ function routes(Message) {
                     return res.json(message);
                 }
             )
-        });
+        });*/
     return messageRouter;
 }
 
