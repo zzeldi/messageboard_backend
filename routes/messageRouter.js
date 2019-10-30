@@ -5,8 +5,7 @@ function routes() {
     const messageRouter = express.Router();
     messageRouter.route('/messages')
         .get(db.getMessages)
-        .post(db.createMessage
-        );
+        .post(db.createMessage );
     return messageRouter;
 }
 

@@ -16,15 +16,14 @@ const pool = new Pool({
 const getMessages = (request, response) => {
     pool.query('select m.id, m.user_name as "userName", m.date, m.message, ' +
         '        coalesce(' +
-        '            (                SELECT array_to_json(array_agg(row_to_json(x)))' +
-        '    FROM (        select c.id, c.user_name as "userName", c.date, c.comment_text as "commentText" '+
+        '            (  SELECT array_to_json(array_agg(row_to_json(x)))' +
+        '    FROM ( select c.id, c.user_name as "userName", c.date, c.comment_text as "commentText" '+
         '    from comments c' +
         '    where c.message_id= m.id) x),' +
-        '    \'[]\') AS comments    from messages m  ', (error, results) => {
+        '    \'[]\') AS comments from messages m  ', (error, results) => {
         if (error) {
             throw error
         }
-        console.log(results.rows);
         response.status(200).json(results.rows)
     })
 };
@@ -36,23 +35,22 @@ const getMessages = (request, response) => {
  */
 const createMessage = (request, response) => {
     const {userName, message} = request.body;
-    pool.query('INSERT INTO messages (date, message,user_name) VALUES ($1, $2, $3 )', [new Date(), message, userName], (error, results) => {
+    pool.query('INSERT INTO messages (date, message,user_name) VALUES ($1, $2, $3 ) RETURNING *', [new Date(), message, userName], (error, results) => {
         if (error) {
             throw error
         }
-        response.status(201);
+        response.status(201).json(results.rows[0]);
     })
 };
 
 const createComment = (request, response) => {
     const {userName, commentText, messageId} = request.body;
-    console.log('commnent', request.body);
-
-    pool.query('INSERT INTO comments (date, comment_text, user_name, message_id) VALUES ($1, $2, $3 , $4)', [new Date(), commentText, userName, messageId], (error, results) => {
+       pool.query('INSERT INTO comments (date, comment_text, user_name, message_id) VALUES ($1, $2, $3 , $4)' +
+        ' RETURNING id, date, comment_text as "commentText", uscer_name as "userName", message_id as "messageId"', [new Date(), commentText, userName, messageId], (error, results) => {
         if (error) {
             throw error
         }
-        response.status(201);
+        response.status(201).json(results.rows[0]);
     })
 };
 
